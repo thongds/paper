@@ -1,0 +1,5 @@
+Method,Discounted Return ↑,Total Bumps ↓
+Retrain from scratch,-15.3 - -14.5,19.7 - 21.1
+Q-learning (naive expansion),-9.2 - -8.6,12.8 - 13.9
+Proposed method,-3.7 - -3.2,3.0 - 4.0
+Q-table reuse only,-6.1 - -5.7,8.3 - 9.3

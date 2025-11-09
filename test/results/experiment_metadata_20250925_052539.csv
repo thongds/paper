@@ -1,0 +1,9 @@
+Key,Value
+Experiment_Name,Q_Learning_Action_Space_Adaptation
+Date,2025-09-25 05:25:39
+Description,Comparison of Q-learning with 4 actions vs 5 actions vs oracle-guided adaptation
+Methods,"['Q_learning_4_actions', 'Q_learning_5_actions', 'Oracle_method_5_actions', 'Q_table_reuse_5_actions']"
+Files_Generated,"['results/returns_data_20250925_052539.csv', 'results/bumps_data_20250925_052539.csv', 'results/summary_statistics_20250925_052539.csv', 'results/experimental_config_20250925_052539.csv']"
+Grid_Size,5x5
+Total_Episodes,600
+Number_of_Runs,5
