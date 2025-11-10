@@ -1,6 +1,7 @@
 from QLearningAgent import QLearningAgent
 from TransitionModelLearner import TransitionModelLearner
 import numpy as np
+
 class MLPQLearningAgent(QLearningAgent):
     """Q-learning agent with learned MLP model for action adaptation"""
     

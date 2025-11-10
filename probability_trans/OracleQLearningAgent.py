@@ -1,6 +1,7 @@
 import numpy as np
 from env import *
 from QLearningAgent import QLearningAgent
+
 class OracleQLearningAgent(QLearningAgent):
     """Q-learning agent with oracle model for action adaptation"""
     
