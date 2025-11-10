@@ -7,11 +7,12 @@ class MLPQLearningAgent(QLearningAgent):
     
     def __init__(self, grid_world, n_actions, base_q_table=None, episodes=600, alpha=0.5, 
                  eps_start=1.0, eps_end=0.05, eps_decay_episodes=300, 
-                 max_steps=200, seed=123, use_model=True):
+                 max_steps=200, seed=123, use_model=True, use_conditional=True):
         super().__init__(grid_world, n_actions, episodes, alpha, eps_start, eps_end, 
                         eps_decay_episodes, max_steps, seed)
         self.reuse_count = np.zeros(self.episodes, dtype=float)
         self.use_model = use_model
+        self.use_conditional = use_conditional
         
         # Initialize transition model learner
         self.transition_learner = TransitionModelLearner()
@@ -59,7 +60,7 @@ class MLPQLearningAgent(QLearningAgent):
                 else:
                     a = epsilon_greedy_func(self.Q[si], eps, self.rng)
                 
-                if self.use_model and a >= 4 and self.transition_learner.can_predict():
+                if self.use_conditional and a >= 4 and self.transition_learner.can_predict():
                     predicted_next_state = self.transition_learner.predict_next_state(s, a)
                     predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
                     
