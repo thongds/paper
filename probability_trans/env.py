@@ -1,0 +1,118 @@
+# Import Required Libraries
+import numpy as np
+import random
+import matplotlib.pyplot as plt
+import time
+
+# Constants and Hyperparameters
+N_ROWS, N_COLS = 25, 25
+START = (0, 0)
+GOAL = (24, 24)
+WALLS = [
+    (2, 2), (3, 4), (5, 1), (7, 3), (4, 6), (8, 2), (6, 7),
+    (2, 15), (4, 18), (6, 12), (8, 20), (3, 22), (7, 16), (9, 14),
+    (15, 2), (18, 5), (20, 1), (16, 7), (22, 4), (19, 8), (17, 3),
+    (15, 18), (17, 21), (19, 16), (21, 19), (18, 23), (16, 15), (20, 17),
+    (10, 10), (12, 8), (14, 12), (11, 15), (13, 6), (9, 18), (15, 9),
+    (5, 11), (8, 16), (11, 3), (14, 20), (17, 6), (20, 13), (23, 8),
+    (1, 9), (4, 14), (7, 19), (10, 22), (13, 17), (16, 11), (19, 2),
+    (22, 15), (6, 5), (9, 8), (12, 18), (15, 4), (18, 14), (21, 7),
+    (1, 23), (23, 1), (3, 0), (0, 3), (24, 21), (21, 24)
+]
+STEP_REWARD = -0.1
+BUMP_REWARD = -0.1
+GOAL_REWARD = 1.0
+GAMMA = 0.95
+ALPHA = 0.5
+EPISODES = 600
+EPS_START, EPS_END, EPS_DECAY_EPISODES = 1.0, 0.05, 300
+MAX_STEPS = 200
+SEED = 123
+
+# actions
+# Action definitions
+ACTIONS_4 = {
+    0: (-1, 0),  # Up
+    1: ( 1, 0),  # Down
+    2: ( 0,-1),  # Left
+    3: ( 0, 1),  # Right
+}
+
+ACTIONS_5 = dict(ACTIONS_4)
+ACTIONS_5[4] = (1, 1)  # south-east (down-right)
+
+ACTIONS_8 = dict(ACTIONS_4)
+ACTIONS_8[4] = (1, 1)   # south-east (diagonal bottom right)
+ACTIONS_8[5] = (1, -1)  # south-west (diagonal bottom left)  
+ACTIONS_8[6] = (-1, 1)  # north-east (diagonal top right)
+ACTIONS_8[7] = (-1, -1) # north-west (diagonal top left)
+
+class GridWorld:
+    def __init__(self, n_rows, n_cols, start, goal, walls, step_reward, goal_reward, gamma, 
+                 success_prob=1.0, noise_prob=0.0, stay_prob=0.0):
+        self.n_rows = n_rows
+        self.n_cols = n_cols
+        self.start = start
+        self.goal = goal
+        self.walls = set(walls)
+        self.step_reward = step_reward
+        self.goal_reward = goal_reward
+        self.gamma = gamma
+        
+        # Probabilistic transition parameters
+        self.success_prob = success_prob      # Probability of intended action
+        self.noise_prob = noise_prob          # Probability of random action
+        self.stay_prob = stay_prob            # Probability of staying in place
+        
+        # Ensure probabilities sum to 1
+        total_prob = success_prob + noise_prob + stay_prob
+        if abs(total_prob - 1.0) > 1e-6:
+            raise ValueError(f"Probabilities must sum to 1.0, got {total_prob}")
+
+    def in_bounds(self, state):
+        r, c = state
+        return 0 <= r < self.n_rows and 0 <= c < self.n_cols
+
+    def step(self, state, action, actions, rng=None):
+        if state == self.goal:
+            return state, 0.0, True
+            
+        if rng is None:
+            rng = np.random.default_rng()
+        
+        # Determine actual action based on transition probabilities
+        rand_val = rng.random()
+        
+        if rand_val < self.success_prob:
+            # Intended action
+            actual_action = action
+        elif rand_val < self.success_prob + self.noise_prob:
+            # Random action from available actions
+            actual_action = rng.integers(0, len(actions))
+        else:
+            # Stay in place (no action)
+            actual_action = None
+        
+        if actual_action is None:
+            # Stay in current state
+            next_state = state
+        else:
+            # Execute the actual action
+            dr, dc = actions[actual_action]
+            next_state = (state[0] + dr, state[1] + dc)
+            if not self.in_bounds(next_state) or next_state in self.walls:
+                next_state = state  # Stay put if invalid
+        
+        reward = self.goal_reward if next_state == self.goal else self.step_reward
+        done = next_state == self.goal
+        return next_state, reward, done
+
+    def to_index(self, state):
+        r, c = state
+        return r * self.n_cols + c
+
+    def from_index(self, index):
+        r = index // self.n_cols
+        c = index % self.n_cols
+        return (r, c)
+
