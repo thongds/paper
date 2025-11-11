@@ -40,7 +40,7 @@ class MLPQLearningAgent(QLearningAgent):
         best = np.flatnonzero(q_row == max_q)
         return int(rng.choice(best))
     
-    def train_with_learned_model(self, actions_dict, epsilon_greedy_func, bump_reward, base_q_table):
+    def train_with_learned_model(self, actions_dict, epsilon_greedy_func, base_q_table):
         eps = self.eps_start
         model_train_frequency = 20  
         
@@ -65,7 +65,7 @@ class MLPQLearningAgent(QLearningAgent):
                     predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
                     
                     # I want to give chance to explore (+0.1)
-                    if np.max(self.Q[predicted_next_state_i]) <= np.max(self.Q[si]):
+                    if np.max(self.Q[predicted_next_state_i]) +0.1 < np.max(self.Q[si]):
                         a = epsilon_greedy_func(base_q_table[si], eps, self.rng)
                     else:
                         reuse += 1
@@ -77,7 +77,6 @@ class MLPQLearningAgent(QLearningAgent):
 
                 if si == s_next_i:
                     bumpcount += 1
-                    r = bump_reward
 
                 target = r if done else r + self.grid_world.gamma * np.max(self.Q[s_next_i])
                 self.Q[si, a] += self.alpha * (target - self.Q[si, a])
