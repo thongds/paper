@@ -50,8 +50,6 @@ class QLearningAgent:
                 s_next_i = self.grid_world.to_index(s_next)
 
                 if si == s_next_i:
-                    if ep == 574:
-                        print(f'Bump at state index {si} on episode {ep}, step {t}, action {a}, bumpcount {bumpcount}')
                     bumpcount += 1
                 target = r if done else r + self.grid_world.gamma * np.max(self.Q[s_next_i])
                 self.Q[si, a] += self.alpha * (target - self.Q[si, a])
