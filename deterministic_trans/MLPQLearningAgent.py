@@ -56,7 +56,8 @@ class MLPQLearningAgent(QLearningAgent):
             
             for t in range(self.max_steps):
                 if ep < 200:  
-                    a = self.enhanced_epsilon_greedy(self.Q[si], eps, self.rng, encourage_new_action=True)
+                    a = self.enhanced_epsilon_greedy(self.Q[si], eps, self.rng, encourage_new_action=True) # This part encourages exploration of new actions 
+                                                                                                            #and could lead to better performance early on in case the new actions could better
                 else:
                     a = epsilon_greedy_func(self.Q[si], eps, self.rng)
                 
