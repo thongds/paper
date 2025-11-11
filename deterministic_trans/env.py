@@ -65,6 +65,11 @@ ACTIONS_4 = {
 ACTIONS_5 = dict(ACTIONS_4)
 ACTIONS_5[4] = (1, 1)  # south-east (down-right)
 
+ACTIONS_8 = dict(ACTIONS_5)
+ACTIONS_8[5] = (1, -1)  # down-left (south-west)
+ACTIONS_8[6] = (-1, 1)  # top-right (north-east)
+ACTIONS_8[7] = (-1, -1)  # top-left (north-west)
+
 class GridWorld:
     def __init__(self, n_rows, n_cols, start, goal, walls, step_reward, goal_reward, bump_reward, gamma):
         self.n_rows = n_rows

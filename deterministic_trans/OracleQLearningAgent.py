@@ -38,11 +38,11 @@ class OracleQLearningAgent(QLearningAgent):
                 a = epsilon_greedy_func(self.Q[si], eps, self.rng)
                 # Oracle guidance for new diagonal actions (actions 4-7)
                 if self.use_model is True:
-                  if a == 4:  # Any diagonal action
+                  if a >= 4:  # Any diagonal action
                     snext_model = oracle_func(si, a)
                     snext_model_i = self.grid_world.to_index(snext_model)
                     # Only accept if it leads to better state value
-                    if np.max(self.Q[snext_model_i]) < np.max(self.Q[si]): # initially, eally step then condition always false 
+                    if snext_model_i == si and np.max(self.Q[snext_model_i]) + 0.1 < np.max(self.Q[si]): # initially, eally step then condition always false 
                                                                            # because of optimistic init => np.max(self.Q[snext_model_i]) == np.max(self.Q[si])
                         # Fall back to original action set
                         a = epsilon_greedy_func(self.base_q_table[si], eps, self.rng)

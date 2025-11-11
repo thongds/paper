@@ -13,7 +13,7 @@ class MLPQLearningAgent(QLearningAgent):
         self.reuse_count = np.zeros(self.episodes, dtype=float)
         self.use_model = use_model
         self.use_conditional = use_conditional
-        
+        self.base_q_table = base_q_table
         # Initialize transition model learner
         self.transition_learner = TransitionModelLearner()
         
@@ -40,7 +40,7 @@ class MLPQLearningAgent(QLearningAgent):
         best = np.flatnonzero(q_row == max_q)
         return int(rng.choice(best))
     
-    def train_with_learned_model(self, actions_dict, epsilon_greedy_func, base_q_table):
+    def train_with_learned_model(self, actions_dict, epsilon_greedy_func):
         eps = self.eps_start
         model_train_frequency = 20  
         
@@ -65,8 +65,8 @@ class MLPQLearningAgent(QLearningAgent):
                     predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
                     
                     # I want to give chance to explore (+0.1)
-                    if np.max(self.Q[predicted_next_state_i]) +0.1 < np.max(self.Q[si]):
-                        a = epsilon_greedy_func(base_q_table[si], eps, self.rng)
+                    if predicted_next_state_i == si and np.max(self.Q[predicted_next_state_i]) < np.max(self.Q[si]):
+                        a = epsilon_greedy_func(self.base_q_table[si], eps, self.rng)
                     else:
                         reuse += 1
                 s_next, r, done = self.grid_world.step(s, a, actions_dict, self.rng)
