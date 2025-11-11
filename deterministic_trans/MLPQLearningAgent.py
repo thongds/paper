@@ -65,7 +65,7 @@ class MLPQLearningAgent(QLearningAgent):
                     predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
                     
                     # I want to give chance to explore (+0.1)
-                    if np.max(self.Q[predicted_next_state_i]) + 0.1 < np.max(self.Q[si]):
+                    if np.max(self.Q[predicted_next_state_i]) <= np.max(self.Q[si]):
                         a = epsilon_greedy_func(base_q_table[si], eps, self.rng)
                     else:
                         reuse += 1
