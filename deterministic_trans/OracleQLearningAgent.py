@@ -22,7 +22,7 @@ class OracleQLearningAgent(QLearningAgent):
                 for new_action in range(base_q_table.shape[1], n_actions):
                     self.Q[:, new_action] = V_old
     
-    def train_with_oracle(self, actions_dict, epsilon_greedy_func, bump_reward, oracle_func):
+    def train_with_oracle(self, actions_dict, epsilon_greedy_func, oracle_func):
         """Train with oracle model guidance"""
         eps = self.eps_start
         for ep in range(self.episodes):
@@ -53,8 +53,6 @@ class OracleQLearningAgent(QLearningAgent):
 
                 if si == s_next_i:
                     bumpcount += 1
-                    r = bump_reward
-                    
 
                 target = r if done else r + self.grid_world.gamma * np.max(self.Q[s_next_i])
                 self.Q[si, a] += self.alpha * (target - self.Q[si, a])

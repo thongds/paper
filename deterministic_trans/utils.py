@@ -2,13 +2,13 @@ import numpy as np
 from env import *
     
     # Define fallback constants if needed
-def epsilon_greedy(q_row, epsilon, rng):
+def epsilon_greedy(q_actions, epsilon, rng):
     """Epsilon-greedy action selection"""
     if rng.random() < epsilon:
-        return int(rng.integers(len(q_row)))
+        return int(rng.integers(len(q_actions)))
     # break ties randomly among maxima
-    max_q = np.max(q_row)
-    best = np.flatnonzero(q_row == max_q)
+    max_q = np.max(q_actions)
+    best = np.flatnonzero(q_actions == max_q)
     return int(rng.choice(best))
 
 def moving_average(x, w=20):

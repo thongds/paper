@@ -1,6 +1,7 @@
 import numpy as np
 from env import *
-from utils import *    
+from utils import *
+
 class QLearningAgent:
     def __init__(self, grid_world, n_actions, episodes=600, alpha=0.5, 
                  eps_start=1.0, eps_end=0.05, eps_decay_episodes=300, 
@@ -30,7 +31,7 @@ class QLearningAgent:
         # Epsilon decay calculation
         self.eps_decay = (eps_start - eps_end) / max(1, eps_decay_episodes)
     
-    def train(self, actions_dict, epsilon_greedy_func, bump_reward):
+    def train(self, actions_dict, epsilon_greedy_func):
         """Train the Q-learning agent"""
         eps = self.eps_start
         
@@ -49,10 +50,9 @@ class QLearningAgent:
                 s_next_i = self.grid_world.to_index(s_next)
 
                 if si == s_next_i:
-                    print(f'Bump at state index {si} on episode {ep}, step {t}, action {a}, bumpcount {bumpcount}')
+                    if ep == 574:
+                        print(f'Bump at state index {si} on episode {ep}, step {t}, action {a}, bumpcount {bumpcount}')
                     bumpcount += 1
-                    r = bump_reward
-
                 target = r if done else r + self.grid_world.gamma * np.max(self.Q[s_next_i])
                 self.Q[si, a] += self.alpha * (target - self.Q[si, a])
 
@@ -66,8 +66,7 @@ class QLearningAgent:
             self.bumps[ep] = bumpcount
             self.steps_arr[ep] = steps
             
-            if ep < self.eps_decay_episodes:
-                eps = max(self.eps_end, eps - self.eps_decay)
+            eps = max(self.eps_end, eps - self.eps_decay)
         
         print(f'Training ({self.n_actions} actions) complete!')
     
