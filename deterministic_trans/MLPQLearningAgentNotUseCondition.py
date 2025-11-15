@@ -2,7 +2,7 @@ from QLearningAgent import QLearningAgent
 from TransitionModelLearner import TransitionModelLearner
 import numpy as np
 
-class MLPQLearningAgent(QLearningAgent):
+class MLPQLearningAgentNotUseCondition(QLearningAgent):
     """Q-learning agent with learned MLP model for action adaptation"""
     
     def __init__(self, grid_world, n_actions, base_q_table=None, episodes=600, alpha=0.5, 
@@ -61,17 +61,6 @@ class MLPQLearningAgent(QLearningAgent):
                 else:
                     a = epsilon_greedy_func(self.Q[si], eps, self.rng)
                 
-                if a >= 4 and self.transition_learner.can_predict():
-                    predicted_next_state = self.transition_learner.predict_next_state(s, a)
-                    predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
-                    
-                    # I want to give chance to explore (+0.1)
-                    if predicted_next_state_i == si:
-                        a = epsilon_greedy_func(self.base_q_table[si], eps, self.rng)
-                    elif np.max(self.Q[predicted_next_state_i]) +0.1 < np.max(self.Q[si]):
-                        a = epsilon_greedy_func(self.base_q_table[si], eps, self.rng)
-                    else:
-                        reuse += 1
                 s_next, r, done = self.grid_world.step(s, a, actions_dict, self.rng)
                 s_next_i = self.grid_world.to_index(s_next)
 

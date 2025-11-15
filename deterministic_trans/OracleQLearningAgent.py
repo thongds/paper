@@ -7,12 +7,13 @@ class OracleQLearningAgent(QLearningAgent):
     
     def __init__(self, grid_world, n_actions, base_q_table=None, episodes=600, alpha=0.5, 
                  eps_start=1.0, eps_end=0.05, eps_decay_episodes=300, 
-                 max_steps=200, seed=123, use_model = True):
+                 max_steps=200, seed=123, use_model = True, use_conditional = True):
         super().__init__(grid_world, n_actions, episodes, alpha, eps_start, eps_end, 
                         eps_decay_episodes, max_steps, seed)
         self.reuse_count = np.zeros(self.episodes, dtype = float)
         self.use_model = use_model
         self.base_q_table = base_q_table
+        self.use_conditional = use_conditional
         # Initialize with base Q-table if provided
         if base_q_table is not None:
             self.Q[:, :base_q_table.shape[1]] = base_q_table
@@ -35,19 +36,20 @@ class OracleQLearningAgent(QLearningAgent):
             steps = 0
             reuse = 0
             for t in range(self.max_steps):
-                a = epsilon_greedy_func(self.Q[si], eps, self.rng)
                 # Oracle guidance for new diagonal actions (actions 4-7)
-                if self.use_model is True:
-                  if a >= 4:  # Any diagonal action
-                    snext_model = oracle_func(si, a)
+                if self.use_conditional is True:
+                    a = 4
+                    snext_model, reward_predict, done = oracle_func(si, a)
                     snext_model_i = self.grid_world.to_index(snext_model)
                     # Only accept if it leads to better state value
-                    if snext_model_i == si and np.max(self.Q[snext_model_i]) < np.max(self.Q[si]): # initially, eally step then condition always false 
-                                                                           # because of optimistic init => np.max(self.Q[snext_model_i]) == np.max(self.Q[si])
+                    value_next_state = reward_predict + self.grid_world.gamma * np.max(self.Q[snext_model_i])
+                    if snext_model_i == si and np.max(self.Q[snext_model_i]) > np.max(self.Q[si]): # initially, eally step then condition always false 
                         # Fall back to original action set
-                        a = epsilon_greedy_func(self.base_q_table[si], eps, self.rng)
-                    else: 
                         reuse += 1
+                    else: 
+                        a = epsilon_greedy_func(self.Q[si], eps, self.rng)
+                else:
+                    a = epsilon_greedy_func(self.Q[si], eps, self.rng)    
                 s_next, r, done = self.grid_world.step(s, a, actions_dict, self.rng)
                 s_next_i = self.grid_world.to_index(s_next)
 

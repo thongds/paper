@@ -54,6 +54,8 @@ class Visualizer:
             row_str = ""
             for j in range(n_cols):
                 if (i, j) == start:
+                    action = policy[i, j]
+                    arrow = Visualizer.ARROWS.get(action, '?')
                     row_str += " S "
                 elif (i, j) == goal:
                     row_str += " G "
