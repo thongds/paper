@@ -64,7 +64,8 @@ class QLearningAgent:
             self.bumps[ep] = bumpcount
             self.steps_arr[ep] = steps
             
-            eps = max(self.eps_end, eps - self.eps_decay)
+            if ep < self.eps_decay_episodes:
+                eps = max(self.eps_end, eps - self.eps_decay)
         
         print(f'Training ({self.n_actions} actions) complete!')
     

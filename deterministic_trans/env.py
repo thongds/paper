@@ -6,7 +6,7 @@ import time
 
 # Constants and Hyperparameters
 N_ROWS, N_COLS = 25, 25
-START = (N_ROWS  - 1, 0)
+START = (0, 0)
 GOAL = (N_ROWS  - 1, N_COLS - 1)
 WALLS = [
    (N_ROWS - 1, 21), 
