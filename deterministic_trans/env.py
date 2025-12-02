@@ -8,7 +8,18 @@ import time
 N_ROWS, N_COLS = 25, 25
 START = (0, 0)
 GOAL = (N_ROWS  - 1, N_COLS - 1)
+
+# Cliff area - bottom rows between start and goal (like classic CliffWalk)
+# CLIFF = [
+#     (N_ROWS - 1, col) for col in range(1, N_COLS - 1)
+# ] + [
+#     (N_ROWS - 6, col) for col in range(1, N_COLS - 1)
+# ] + [
+#     (N_ROWS - 10, col) for col in range(1, N_COLS - 1)
+# ] 
+CLIFF = []
 WALLS = [
+    
    (N_ROWS - 1, 21), 
    (N_ROWS - 2, 22),
    (N_ROWS - 3, 22),
@@ -37,10 +48,46 @@ WALLS = [
    (N_ROWS - 10, 16), 
    (N_ROWS - 10, 15),
    (N_ROWS - 10, 14), 
-   (N_ROWS - 10, 13),
-   (N_ROWS - 10, 12), 
-   (N_ROWS - 10, 11), 
-   (N_ROWS - 10, 10)
+   (N_ROWS - 10, 10),
+
+#     # Additional obstacles - preserved path to goal (no blocks on col 23+)
+#     # Upper-left vertical segment (col 4, rows 2-8)
+#     (2, 4),
+#     (3, 4),
+#     (4, 4),
+#     (5, 4),
+#     (6, 4),
+#     (7, 4),
+#     (8, 4),
+
+#     # Upper band horizontal segment (row 8, cols 6-12)
+#     (8, 6),
+#     (8, 7),
+#     (8, 8),
+#     (8, 9),
+#     (8, 10),
+#     (8, 11),
+#     (8, 12),
+
+#     # Central 3x3 block (rows 11-13, cols 6-8)
+#     (11, 6),
+#     (11, 7),
+#     (11, 8),
+#     (12, 6),
+#     (12, 7),
+#     (12, 8),
+#     (13, 6),
+#     (13, 7),
+#     (13, 8),
+
+#     # Right-upper vertical segment (col 18, rows 2-5)
+#     (2, 18),
+#     (3, 18),
+#     (4, 18),
+#     (5, 18),
+#    (N_ROWS - 10, 12), 
+#    (N_ROWS - 10, 11), 
+#    (N_ROWS - 10, 10)
 ]
 # actions
 # Action definitions
@@ -60,16 +107,18 @@ ACTIONS_8[6] = (-1, 1)  # top-right (north-east)
 ACTIONS_8[7] = (-1, -1)  # top-left (north-west)
 
 class GridWorld:
-    def __init__(self, n_rows, n_cols, start, goal, walls, step_reward, goal_reward, bump_reward, gamma):
+    def __init__(self, n_rows, n_cols, start, goal, walls, step_reward, goal_reward, bump_reward, gamma, cliff = CLIFF, cliff_reward=-200):
         self.n_rows = n_rows
         self.n_cols = n_cols
         self.start = start
         self.goal = goal
         self.walls = set(walls)
+        self.cliff = set(cliff) if cliff is not None else set()
         self.step_reward = step_reward
         self.goal_reward = goal_reward
         self.gamma = gamma
         self.bump_reward = bump_reward
+        self.cliff_reward = cliff_reward
         self.success_prob = 0.7
         self.noise_prob = 0.1
         self.stay_prob = 0.2
@@ -108,6 +157,10 @@ class GridWorld:
             if not self.in_bounds(next_state) or next_state in self.walls:
                 next_state = state  # Stay put if invalid
         
+        # Check if agent fell off cliff
+        if next_state in self.cliff:
+            return self.start, self.cliff_reward, False
+        
         reward = self.goal_reward if next_state == self.goal else self.step_reward
         done = next_state == self.goal
         return next_state, reward, done
@@ -123,6 +176,11 @@ class GridWorld:
         # If next state is out of bounds or hits a wall, stay in current state
         if not self.in_bounds(next_state) or next_state in self.walls:
             next_state = state
+        
+        # Check if agent fell off cliff
+        if next_state in self.cliff:
+            return state, self.cliff_reward, False
+        
         if next_state == state:
             reward = self.bump_reward
         else:

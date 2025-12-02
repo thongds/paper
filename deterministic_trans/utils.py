@@ -2,7 +2,12 @@ import numpy as np
 from env import *
     
     # Define fallback constants if needed
-def epsilon_greedy(q_actions, epsilon, rng):
+def epsilon_greedy(q_actions, epsilon, rng, encourage_new_action=False, epissodes=None):
+    if encourage_new_action and epissodes is not None and epissodes < 100:
+        """Encourage exploration of new actions in early episodes"""
+        if rng.random() < 0.3:  
+                # Randomly choose one of the diagonal actions (4-7)
+                return int(rng.integers(4, len(q_actions)))
     """Epsilon-greedy action selection"""
     if rng.random() < epsilon:
         return int(rng.integers(len(q_actions)))
@@ -61,6 +66,8 @@ class Visualizer:
                     row_str += " G "
                 elif (i, j) in walls:
                     row_str += " ▓ "
+                elif (i, j) in CLIFF:
+                    row_str += " C "
                 else:
                     action = policy[i, j]
                     arrow = Visualizer.ARROWS.get(action, '?')
@@ -76,5 +83,5 @@ class Visualizer:
         for i in range(n_rows):
             row_str = ""
             for j in range(n_cols):
-                row_str += f"{V[i, j]:6.1f} "
+                row_str += f"{V[i, j]:6.1f} ?"
             print(row_str)

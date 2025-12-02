@@ -7,12 +7,13 @@ class MLPQLearningAgent(QLearningAgent):
     
     def __init__(self, grid_world, n_actions, base_q_table=None, episodes=600, alpha=0.5, 
                  eps_start=1.0, eps_end=0.05, eps_decay_episodes=300, 
-                 max_steps=200, seed=123, use_model=True, use_conditional=True):
+                 max_steps=200, seed=123, use_model=True, use_conditional=True, use_oracle=False):
         super().__init__(grid_world, n_actions, episodes, alpha, eps_start, eps_end, 
                         eps_decay_episodes, max_steps, seed)
         self.reuse_count = np.zeros(self.episodes, dtype=float)
         self.use_model = use_model
         self.use_conditional = use_conditional
+        self.use_oracle = use_oracle
         self.base_q_table = base_q_table
         # Initialize transition model learner
         self.transition_learner = TransitionModelLearner()
@@ -40,7 +41,7 @@ class MLPQLearningAgent(QLearningAgent):
         best = np.flatnonzero(q_row == max_q)
         return int(rng.choice(best))
     
-    def train_with_learned_model(self, actions_dict, epsilon_greedy_func):
+    def train_with_learned_model(self, actions_dict, epsilon_greedy_func, oracle_func):
         eps = self.eps_start
         model_train_frequency = 20  
         
@@ -55,28 +56,35 @@ class MLPQLearningAgent(QLearningAgent):
             reuse = 0
             
             for t in range(self.max_steps):
-                if ep < 200:  
-                    a = self.enhanced_epsilon_greedy(self.Q[si], eps, self.rng, encourage_new_action=True) # This part encourages exploration of new actions 
-                                                                                                            #and could lead to better performance early on in case the new actions could better
-                else:
-                    a = epsilon_greedy_func(self.Q[si], eps, self.rng)
-                
-                if a >= 4 and self.transition_learner.can_predict():
+                a = epsilon_greedy_func(self.Q[si], eps, self.rng)
+                # Use oracle or transition learner based on configuration
+                if a >= 4:
                     predicted_next_state = self.transition_learner.predict_next_state(s, a)
                     predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
-                    
-                    # I want to give chance to explore (+0.1)
-                    if predicted_next_state_i == si:
-                        a = epsilon_greedy_func(self.base_q_table[si], eps, self.rng)
-                    elif np.max(self.Q[predicted_next_state_i]) +0.1 < np.max(self.Q[si]):
-                        a = epsilon_greedy_func(self.base_q_table[si], eps, self.rng)
-                    else:
+                else:
+                    predicted_next_state, _, _ = oracle_func(si, a)
+                    predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
+                if self.use_oracle:
+                    # Use oracle function to predict next state (pass state index)
+                    predicted_next_state, _, _ = oracle_func(si, a)
+                    predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
+                    if predicted_next_state_i != si and np.max(self.base_q_table[predicted_next_state_i]) > np.max(self.base_q_table[si]):
                         reuse += 1
+                    else:
+                        a = epsilon_greedy_func(self.Q[si], eps, self.rng)
+                elif self.transition_learner.can_predict():
+                    # Use learned transition model to predict next state
+                    predicted_next_state = self.transition_learner.predict_next_state(s, a)
+                    predicted_next_state_i = self.grid_world.to_index(predicted_next_state)
+                    if predicted_next_state_i != si and np.max(self.base_q_table[predicted_next_state_i]) > np.max(self.base_q_table[si]):
+                        reuse += 1
+                    else:
+                        a = epsilon_greedy_func(self.Q[si], eps, self.rng)
+                        
                 s_next, r, done = self.grid_world.step(s, a, actions_dict, self.rng)
                 s_next_i = self.grid_world.to_index(s_next)
 
-                if a >= 4:  # Any diagonal action
-                    self.transition_learner.add_experience(s, a, s_next)
+                self.transition_learner.add_experience(s.flatten(), a, s_next.flatten())
 
                 if si == s_next_i:
                     bumpcount += 1

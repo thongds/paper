@@ -11,6 +11,7 @@ class OracleQLearningAgent(QLearningAgent):
         super().__init__(grid_world, n_actions, episodes, alpha, eps_start, eps_end, 
                         eps_decay_episodes, max_steps, seed)
         self.reuse_count = np.zeros(self.episodes, dtype = float)
+        self.reject_count = np.zeros(self.episodes, dtype = float)
         self.use_model = use_model
         self.base_q_table = base_q_table
         self.use_conditional = use_conditional
@@ -20,7 +21,7 @@ class OracleQLearningAgent(QLearningAgent):
             # Optimistic initialization for new actions
             if use_model == True:
                 self.Q[:, :base_q_table.shape[1]] = base_q_table
-                V_old = np.max(base_q_table, axis=1) 
+                V_old = np.min(base_q_table, axis=1) 
                 for new_action in range(base_q_table.shape[1], n_actions):
                     self.Q[:, new_action] = V_old
     
@@ -29,7 +30,7 @@ class OracleQLearningAgent(QLearningAgent):
         if rng.random() < epsilon:
             return int(rng.integers(len(q_actions)))
         # break ties randomly among maxima
-        max_q = np.max(q_actions)
+        max_q = np.max(q_actions) # 70%, 50% new actions, best
         best = np.flatnonzero(q_actions == max_q)
         return int(rng.choice(best))
     
@@ -57,18 +58,22 @@ class OracleQLearningAgent(QLearningAgent):
             disc = 1.0
             steps = 0
             reuse = 0
+            reject = 0
             for t in range(self.max_steps):
                 # Oracle guidance for new diagonal actions (actions 4-7)
                 if self.use_conditional is True:
                     a = epsilon_greedy_func(self.Q[si], eps, self.rng)
-                    snext_model, reward_predict, done = oracle_func(si, a)
-                    snext_model_i = self.grid_world.to_index(snext_model)
-                    # Only accept if it leads to better state value
-                    if np.max(self.base_q_table[snext_model_i]) > np.max(self.base_q_table[si]):  
+                    if a >=4: 
+                        snext_model, reward_predict, done = oracle_func(si, a)
+                        snext_model_i = self.grid_world.to_index(snext_model)
+                        # Only accept if it leads to better state value
+                        # V(-1) < V(0)
+                        # -1, goal is 100
+                        if snext_model_i != si and np.max(self.Q[snext_model_i]) > np.max(self.Q[si]):  
                             reuse += 1
-                    else: 
+                        else: 
+                            reject += 1
                             a = epsilon_greedy_func(self.Q[si], eps, self.rng)
-                        
                 else:
                     a = epsilon_greedy_func(self.Q[si], eps, self.rng)    
                 s_next, r, done = self.grid_world.step(s, a, actions_dict, self.rng)
@@ -87,6 +92,7 @@ class OracleQLearningAgent(QLearningAgent):
                 if done:
                     break
             self.reuse_count[ep] = reuse    
+            self.reject_count[ep] = reject
             self.returns[ep] = G
             self.bumps[ep] = bumpcount
             self.steps_arr[ep] = steps
