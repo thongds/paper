@@ -10,45 +10,45 @@ START = (0, 0)
 GOAL = (N_ROWS  - 1, N_COLS - 1)
 
 # Cliff area - bottom rows between start and goal (like classic CliffWalk)
-# CLIFF = [
-#     (N_ROWS - 1, col) for col in range(1, N_COLS - 1)
-# ] + [
-#     (N_ROWS - 6, col) for col in range(1, N_COLS - 1)
-# ] + [
-#     (N_ROWS - 10, col) for col in range(1, N_COLS - 1)
-# ] 
-CLIFF = []
+CLIFF = [
+    (N_ROWS - 1, col) for col in range(1, N_COLS - 1)
+] + [
+    (N_ROWS - 6, col) for col in range(1, N_COLS - 1)
+] + [
+    (N_ROWS - 10, col) for col in range(1, N_COLS - 1)
+] 
+# CLIFF = []
 WALLS = [
     
-   (N_ROWS - 1, 21), 
-   (N_ROWS - 2, 22),
-   (N_ROWS - 3, 22),
-   (N_ROWS - 4, 22),
-   (N_ROWS - 5, 22),
-   (N_ROWS - 6, 22),
-   (N_ROWS - 7, 22),
-   (N_ROWS - 8, 22),
-   (N_ROWS - 9, 22),
-   (N_ROWS - 10, 22),
-   (N_ROWS - 11, 22),
-   (N_ROWS - 12, 22),
-   (N_ROWS - 13, 21), 
-   (N_ROWS - 14, 22),
-   (N_ROWS - 15, 22),
-   (N_ROWS - 16, 22),
-   (N_ROWS - 17, 22),
-   (N_ROWS - 18, 22),
-   (N_ROWS - 19, 22),
+#    (N_ROWS - 1, 21), 
+#    (N_ROWS - 2, 22),
+#    (N_ROWS - 3, 22),
+#    (N_ROWS - 4, 22),
+#    (N_ROWS - 5, 22),
+#    (N_ROWS - 6, 22),
+#    (N_ROWS - 7, 22),
+#    (N_ROWS - 8, 22),
+#    (N_ROWS - 9, 22),
+#    (N_ROWS - 10, 22),
+#    (N_ROWS - 11, 22),
+#    (N_ROWS - 12, 22),
+#    (N_ROWS - 13, 21), 
+#    (N_ROWS - 14, 22),
+#    (N_ROWS - 15, 22),
+#    (N_ROWS - 16, 22),
+#    (N_ROWS - 17, 22),
+#    (N_ROWS - 18, 22),
+#    (N_ROWS - 19, 22),
    
-   (N_ROWS - 10, 21),
-   (N_ROWS - 10, 20), 
-   (N_ROWS - 10, 19), 
-   (N_ROWS - 10, 18),
-   (N_ROWS - 10, 17),
-   (N_ROWS - 10, 16), 
-   (N_ROWS - 10, 15),
-   (N_ROWS - 10, 14), 
-   (N_ROWS - 10, 10),
+#    (N_ROWS - 10, 21),
+#    (N_ROWS - 10, 20), 
+#    (N_ROWS - 10, 19), 
+#    (N_ROWS - 10, 18),
+#    (N_ROWS - 10, 17),
+#    (N_ROWS - 10, 16), 
+#    (N_ROWS - 10, 15),
+#    (N_ROWS - 10, 14), 
+#    (N_ROWS - 10, 10),
 
 #     # Additional obstacles - preserved path to goal (no blocks on col 23+)
 #     # Upper-left vertical segment (col 4, rows 2-8)

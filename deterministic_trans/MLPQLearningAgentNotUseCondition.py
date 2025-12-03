@@ -22,8 +22,8 @@ class MLPQLearningAgentNotUseCondition(QLearningAgent):
         if base_q_table is not None:
             self.Q[:, :base_q_table.shape[1]] = base_q_table
             # Optimistic initialization for new actions
+            V_old = np.min(base_q_table, axis=1) 
             if use_model:
-                V_old = np.max(base_q_table, axis=1) 
                 for new_action in range(base_q_table.shape[1], n_actions):
                     self.Q[:, new_action] = V_old
     
