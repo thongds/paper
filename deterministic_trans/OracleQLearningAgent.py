@@ -21,7 +21,11 @@ class OracleQLearningAgent(QLearningAgent):
             # Optimistic initialization for new actions
             self.Q[:, :base_q_table.shape[1]] = base_q_table
             if use_model == True:
-                V_old = np.min(base_q_table, axis=1) 
+                # Randomly select a value from each state's Q-values
+                rng = np.random.RandomState(seed)
+                # V_old = np.array([rng.choice(base_q_table[i]) for i in range(base_q_table.shape[0])])
+                V_old = np.min(base_q_table, axis=1)
+                print("V_old:", V_old)
                 for new_action in range(base_q_table.shape[1], n_actions):
                     self.Q[:, new_action] = V_old
     
@@ -69,7 +73,9 @@ class OracleQLearningAgent(QLearningAgent):
                         # Only accept if it leads to better state value
                         # V(-1) < V(0)
                         # -1, goal is 100
-                        if snext_model_i != si and np.max(self.Q[snext_model_i]) > np.max(self.Q[si]):  
+                        #next_state_value = reward_predict + self.grid_world.gamma * np.max(self.Q[snext_model_i])
+                        next_state_value = np.max(self.Q[snext_model_i])
+                        if reward_predict + self.grid_world.gamma * next_state_value > np.max(self.Q[si]):  
                             reuse += 1
                         else: 
                             reject += 1

@@ -54,9 +54,9 @@ class TransitionModelLearnerDQN(nn.Module):
         samples = list(self.buffer)[-sample_size:]
         
         for state_feat, action_feat, next_state_feat in samples:
-            states.append(state_feat)
+            states.append(state_feat.flatten())
             actions.append(action_feat)
-            next_states.append(next_state_feat)
+            next_states.append(next_state_feat.flatten())
         
         states = torch.FloatTensor(np.array(states)).to(self.device)
         actions = torch.FloatTensor(np.array(actions)).to(self.device)
@@ -69,6 +69,11 @@ class TransitionModelLearnerDQN(nn.Module):
                 batch_states = states[batch_indices]
                 batch_actions = actions[batch_indices]
                 batch_next_states = next_states[batch_indices]
+                
+                # Ensure batch_actions has shape [batch_size, 1] for concatenation
+                if batch_actions.dim() == 1:
+                    batch_actions = batch_actions.unsqueeze(1)
+                
                 # Concatenate state and action
                 batch_input = torch.cat([batch_states, batch_actions], dim=1)
                 # forward 
@@ -89,8 +94,8 @@ class TransitionModelLearnerDQN(nn.Module):
             state = state.flatten()
             input_features = np.concatenate([state, action_features])
             input_features = np.reshape(input_features, [1, state_size + 1])
-            input_tensor = torch.FloatTensor(input_features).unsqueeze(0).to(self.device)
+            input_tensor = torch.FloatTensor(input_features).to(self.device)
             
             predicted = self(input_tensor)
-            predicted_np = predicted.cpu().numpy()[0]
+            predicted_np = predicted.cpu().numpy()
             return predicted_np

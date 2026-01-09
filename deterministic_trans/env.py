@@ -17,28 +17,28 @@ CLIFF = [
 ] + [
     (N_ROWS - 10, col) for col in range(1, N_COLS - 1)
 ] 
-# CLIFF = []
+#CLIFF = []
 WALLS = [
     
-#    (N_ROWS - 1, 21), 
-#    (N_ROWS - 2, 22),
-#    (N_ROWS - 3, 22),
-#    (N_ROWS - 4, 22),
-#    (N_ROWS - 5, 22),
-#    (N_ROWS - 6, 22),
-#    (N_ROWS - 7, 22),
-#    (N_ROWS - 8, 22),
-#    (N_ROWS - 9, 22),
-#    (N_ROWS - 10, 22),
-#    (N_ROWS - 11, 22),
-#    (N_ROWS - 12, 22),
-#    (N_ROWS - 13, 21), 
-#    (N_ROWS - 14, 22),
-#    (N_ROWS - 15, 22),
-#    (N_ROWS - 16, 22),
-#    (N_ROWS - 17, 22),
-#    (N_ROWS - 18, 22),
-#    (N_ROWS - 19, 22),
+   (N_ROWS - 1, 21), 
+   (N_ROWS - 2, 22),
+   (N_ROWS - 3, 22),
+   (N_ROWS - 4, 22),
+   (N_ROWS - 5, 22),
+   (N_ROWS - 6, 22),
+   (N_ROWS - 7, 22),
+   (N_ROWS - 8, 22),
+   (N_ROWS - 9, 22),
+   (N_ROWS - 10, 22),
+   (N_ROWS - 11, 22),
+   (N_ROWS - 12, 22),
+   (N_ROWS - 13, 21), 
+   (N_ROWS - 14, 22),
+   (N_ROWS - 15, 22),
+   (N_ROWS - 16, 22),
+   (N_ROWS - 17, 22),
+   (N_ROWS - 18, 22),
+   (N_ROWS - 19, 22),
    
 #    (N_ROWS - 10, 21),
 #    (N_ROWS - 10, 20), 
