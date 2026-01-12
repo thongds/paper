@@ -10,14 +10,14 @@ START = (0, 0)
 GOAL = (N_ROWS  - 1, N_COLS - 1)
 
 # Cliff area - bottom rows between start and goal (like classic CliffWalk)
-CLIFF = [
-    (N_ROWS - 1, col) for col in range(1, N_COLS - 1)
-] + [
-    (N_ROWS - 6, col) for col in range(1, N_COLS - 1)
-] + [
-    (N_ROWS - 10, col) for col in range(1, N_COLS - 1)
-] 
-#CLIFF = []
+# CLIFF = [
+#     (N_ROWS - 1, col) for col in range(1, N_COLS - 1)
+# ] + [
+#     (N_ROWS - 6, col) for col in range(1, N_COLS - 1)
+# ] + [
+#     (N_ROWS - 10, col) for col in range(1, N_COLS - 1)
+# ] 
+CLIFF = []
 WALLS = [
     
    (N_ROWS - 1, 21), 
