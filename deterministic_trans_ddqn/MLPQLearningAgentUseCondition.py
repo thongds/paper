@@ -222,7 +222,7 @@ class MLPQLearningAgentUseCondition:
                 if self.rng.random() < exploration_prob:
                     a = self.enhanced_epsilon_greedy(s, eps, encourage_new_action=True)
                 else:
-                    a = self.enhanced_epsilon_greedy(s, eps, encourage_new_action=False)
+                    a = self.enhanced_epsilon_greedy(s, eps, encourage_new_action=True)
                 
                 # Use transition model for diagonal actions if available
                 if a >= 4 and self.transition_learner.can_predict() and self.use_conditional:
